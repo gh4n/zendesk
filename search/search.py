@@ -4,41 +4,10 @@
 import json
 import yaml
 from trie import Trie
+from entry import Entry
+from query import Query
 
-class Entry:
-    """
-    Generic object to reference the entry that is
-    indexed into the Trie
-    """
-    def __init__(self, index, string, field, group):
-        self.index = index
-        self.string = string
-        self.field = field
-        self.group = group
-        self.related_results = {}
-    
-    def get_raw(self, group_data):
-        return group_data[self.index]
-
-    def get_attr(self, group_data, attribute):
-        return self.get_raw(group_data)[attribute]
-
-class Query:
-    """
-    Encapsulates the user's search choices
-    """
-    def __init__(self, query_string, field=None, group=None):
-        self.string = str(query_string)
-        self.field = field
-        self.group = group
-    
-    def set_field(self, field):
-        self.field = field
-    
-    def set_group(self, group):
-        self.group = group
-
-class SearchZendesk:
+class Search:
     """
     Reads in files
     Builds search tree
@@ -87,76 +56,66 @@ class SearchZendesk:
         filtered_results = self.filter_results(query, unfiltered_results)
         return filtered_results
 
-
     def filter_results(self, query, results):
         results = list(filter(lambda entry: entry.field == query.field, results))
         results = list(filter(lambda entry: entry.group == query.group, results))
         return results
     
+    def _get_field(self, entry, field):
+        raw_entry = self.get_raw(entry)
+        return [self.get_attr(entry, field), self.get_attr(entry, "_id")]
+
+    def get_name_ids(self, entries):
+        return list(map(lambda entry: self._get_field(entry, "name"), entries))
     
+    def get_subject_ids(self, entries):
+        return list(map(lambda entry: self._get_field(entry, "subject"), entries))
+
+    def get_raw(self, entry):
+        data = self.groups[entry.group]
+        return entry.get_raw(data)
+    
+    def get_attr(self, entry, field):
+        data = self.groups[entry.group]
+        return entry.get_attr(data, field)
+
     def get_related_info(self, entry):
+        raw_entry = self.get_raw(entry)
+
         if entry.group == "orgs":
-            raw_entry = self.orgs[entry.index] 
-            query_org_users = Query(raw_entry["_id"], field="organization_id", group="users")
-            query_org_users_results = self.search(query_org_users)
-            org_users = self.filter_results(query_org_users, query_org_users_results)
-            org_users_info = list(map(lambda user : [user.get_attr(self.users, "name"), user.get_attr(self.users, "_id")], org_users))
-            entry.related_results = {"org_users": org_users_info}
+            related_results = self.field_and_group_search(raw_entry["_id"], field="organization_id", group="users")
+            users = self.get_name_ids(related_results)
+            entry.related_results["users"] = users
 
-            query_org_tickets = Query(raw_entry["_id"], field="organization_id", group="tickets")
-            query_org_tickets_results = self.search(query_org_tickets)
-            org_tickets = self.filter_results(query_org_tickets, query_org_tickets_results)
-            org_tickets_info = list(map(lambda ticket : [ticket.get_attr(self.tickets, "subject"), user.get_attr(self.tickets, "_id")], org_tickets))
-            entry.related_results = {"org_tickets": org_tickets_info}
-
+            related_results = self.field_and_group_search(raw_entry["_id"], field="organization_id", group="tickets")
+            tickets = self.get_name_ids(related_results)
+            entry.related_results["tickets"] = tickets
 
         if entry.group == "tickets":
-            raw_entry = self.tickets[entry.index] 
+            related_results = self.field_and_group_search(raw_entry["submitter_id"], field="_id", group="users")
+            submitter = self.get_name_ids(related_results)
+            entry.related_results["submitter"] = submitter
 
-            query_ticket_submitter = Query(raw_entry["submitter_id"], field="_id", group="users")
-            query_ticket_submitter_results = self.search(query_ticket_submitter)
-            ticket_submitter = self.filter_results(query_ticket_submitter, query_ticket_submitter_results)
-            submitter_info = list(map(lambda user : [user.get_attr(self.users, "name"), user.get_attr(self.users, "_id")], ticket_submitter))
-            entry.related_results["submitter"]=submitter_info
+            related_results = self.field_and_group_search(raw_entry["assignee_id"], field="_id", group="users")
+            assignee = self.get_name_ids(related_results)
+            entry.related_results["assignee"] = assignee
 
-            query_ticket_assignee = Query(raw_entry["assignee_id"], field="_id", group="users")
-            query_ticket_assignee_results = self.search(query_ticket_assignee)
-            ticket_assignee = self.filter_results(query_ticket_assignee, query_ticket_assignee_results)
-            assignee_info = list(map(lambda user : [user.get_attr(self.users, "name"), user.get_attr(self.users, "_id")], ticket_assignee))
-            entry.related_results["assignee"]=assignee_info
-
-            query_ticket_org = Query(raw_entry["organization_id"], field="_id", group="orgs")
-            query_ticket_org_results = self.search(query_ticket_org)
-            ticket_org = self.filter_results(query_ticket_org, query_ticket_org_results)
-            org_info = list(map(lambda org : [org.get_attr(self.orgs, "name"), org.get_attr(self.orgs, "_id")], ticket_org))
-            entry.related_results["org"]=org_info
+            related_results = self.field_and_group_search(raw_entry["organization_id"], field="_id", group="orgs")
+            org = self.get_name_ids(related_results)
+            entry.related_results["org"] = org
         
         if entry.group == "users":
-            print(entry.index)
-            raw_entry = self.users[entry.index]
+            related_results = self.field_and_group_search(raw_entry["organization_id"], field="_id", group="orgs")
+            org = self.get_name_ids(related_results)
+            entry.related_results["org"] = org
 
-            query_user_org = Query(raw_entry["organization_id"], field="_id", group="orgs")
-            query_user_org_results = self.search(query_user_org)
-            user_org = self.filter_results(query_user_org, query_user_org_results)
-            print(user_org)
-            user_org_info = list(map(lambda org : [org.get_attr(self.orgs, "name"), org.get_attr(self.orgs, "_id")], user_org))
-            print(user_org_info)
-            entry.related_results["org"] = user_org_info
-            print(entry.related_results)
+            related_results = self.field_and_group_search(raw_entry["_id"], field="assignee_id", group="tickets")
+            assigned_tickets = self.get_subject_ids(related_results)
+            entry.related_results["assigned_tickets"]=assigned_tickets
 
-            query_assigned_tickets = Query(raw_entry["_id"], field="assignee_id", group="tickets")
-            query_assigned_tickets_results = self.search(query_assigned_tickets)
-            assigned_tickets = self.filter_results(query_assigned_tickets, query_assigned_tickets_results)
-            assigned_ticket_info = list(map(lambda ticket : [ticket.get_attr(self.tickets, "subject"), ticket.get_attr(self.tickets, "_id")], assigned_tickets))
-            entry.related_results["assigned_tickets"]=assigned_ticket_info
-
-
-            query_submitted_tickets = Query(raw_entry["_id"], field="submitter_id", group="tickets")
-            query_submitted_tickets_results = self.search(query_submitted_tickets)
-            submitted_tickets = self.filter_results(query_submitted_tickets, query_submitted_tickets_results)
-            submitted_ticket_info = list(map(lambda ticket : [ticket.get_attr(self.tickets, "subject"), ticket.get_attr(self.tickets,"_id")], submitted_tickets))
-            entry.related_results["submitted_tickets"]=submitted_ticket_info
-            print(entry.related_results)
+            related_results = self.field_and_group_search(raw_entry["_id"], field="submitter_id", group="tickets")
+            submitted_tickets = self.get_subject_ids(related_results)
+            entry.related_results["submitted_tickets"]=submitted_ticket
 
     def format_results(self, results):
         print("FORMAT", results)
@@ -219,7 +178,7 @@ class SearchZendesk:
                 field = fields_list[search_field]
                 user_query = input(f"{field} >>>> ")
                 query = Query(user_query, group=group, field=field)
-                results = self.search(query)
+                results = self.freeforsearch(query)
                 filtered = self.filter_results(query, results)
                 self.format_results(filtered)
 
@@ -250,7 +209,7 @@ class SearchZendesk:
                 print(filtered)
     
 if __name__ == "__main__":
-    search = SearchZendesk(users_filepath="data/users.json", tickets_filepath="data/tickets.json", orgs_filepath="data/organizations.json")
+    search = Search(users_filepath="data/users.json", tickets_filepath="data/tickets.json", orgs_filepath="data/organizations.json")
     # q = "Pennsylvania"
     # res = search.search(q)
     # print(res.storage)
