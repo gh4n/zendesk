@@ -78,55 +78,46 @@ class Search:
     def get_attr(self, entry, field):
         data = self.groups[entry.group]
         return entry.get_attr(data, field)
+    
+    def _get_related_info(self, entry, search_string, field, group, info_name, info_type="name");
+        related_results = self.field_and_group_search(search_string, field=field, group=group)
+        if info_type is "name":
+            info = self.get_name_ids(related_results)
+        if info_type is "subject":
+            info = self.get_subject_ids(related_results)
+        entry.related_results[info_name] = info
 
     def get_related_info(self, entry):
         raw_entry = self.get_raw(entry)
+        id = raw_entry["_id"]
+        submitter_id = raw_entry["submitter_id"]
+        assignee_id = raw_entry["assignee_id"]
+        org_id = raw_entry["organization_id"]
 
         if entry.group == "orgs":
-            related_results = self.field_and_group_search(raw_entry["_id"], field="organization_id", group="users")
-            users = self.get_name_ids(related_results)
-            entry.related_results["users"] = users
-
-            related_results = self.field_and_group_search(raw_entry["_id"], field="organization_id", group="tickets")
-            tickets = self.get_name_ids(related_results)
-            entry.related_results["tickets"] = tickets
+            self._get_related_info(id, field="organization_id", group="users", info_name="users")
+            self._get_related_info(id, field="organization_id", group="tickets", info_name="tickets")
 
         if entry.group == "tickets":
-            related_results = self.field_and_group_search(raw_entry["submitter_id"], field="_id", group="users")
-            submitter = self.get_name_ids(related_results)
-            entry.related_results["submitter"] = submitter
-
-            related_results = self.field_and_group_search(raw_entry["assignee_id"], field="_id", group="users")
-            assignee = self.get_name_ids(related_results)
-            entry.related_results["assignee"] = assignee
-
-            related_results = self.field_and_group_search(raw_entry["organization_id"], field="_id", group="orgs")
-            org = self.get_name_ids(related_results)
-            entry.related_results["org"] = org
+            self._get_related_info(submitter_id, field="_id", group="users", info_name="submitter")
+            self._get_related_info(assignee_id, field="_id", group="users", info_name="assignee")
+            self._get_related_info(org_id, field="_id", group="orgs", info_name="org")
         
         if entry.group == "users":
-            related_results = self.field_and_group_search(raw_entry["organization_id"], field="_id", group="orgs")
-            org = self.get_name_ids(related_results)
-            entry.related_results["org"] = org
-
-            related_results = self.field_and_group_search(raw_entry["_id"], field="assignee_id", group="tickets")
-            assigned_tickets = self.get_subject_ids(related_results)
-            entry.related_results["assigned_tickets"]=assigned_tickets
-
-            related_results = self.field_and_group_search(raw_entry["_id"], field="submitter_id", group="tickets")
-            submitted_tickets = self.get_subject_ids(related_results)
-            entry.related_results["submitted_tickets"]=submitted_ticket
+            self._get_related_info(org_id, field="_id", group="orgs", info_name="org")
+            self._get_related_info(id, field="assignee_id", group="tickets", info_name="assigned_tickets", info_type="subject")
+            self._get_related_info(id, field="submitter_id", group="tickets", info_name="submitted_tickets", info_type="subject")
 
     def format_results(self, results):
-        print("FORMAT", results)
         for entry in results:
             if entry.group == "users":
-                print("hi")
                 self.get_related_info(entry)
                 self.format_user(entry)
             if entry.group == "orgs":
+                self.get_related_info(entry)
                 self.format_org(entry)
             if entry.group == "tickets":
+                self._get_related_info(entry)
                 self.format_ticket(entry)    
     
     def format_user(self, entry):
