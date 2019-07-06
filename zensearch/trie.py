@@ -42,13 +42,13 @@ class Trie:
 
 if __name__ == "__main__":
     trie = Trie()
-    trie.add("Hello this is \nme")
-    trie.find("Hello this is \nme")
-    # print(trie.export())
+    # trie.add("this is you 2")
 
-    words = ["hey", "im", "grace"]
-    trie.add("hey")
-    list(map(trie.add, words))
-    trie.find("grace")
-    trie.find("im")
+    print(trie.export())
+
+    # words = ["hey", "im", "grace"]
+    # trie.add("hey")
+    # list(map(trie.add, words))
+    # trie.find("grace")
+    # trie.find("im")
     print(trie.export())
