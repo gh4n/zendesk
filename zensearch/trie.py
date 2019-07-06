@@ -1,4 +1,4 @@
-
+import json
 class Node:
     def __init__(self, item):
         self.item = item
@@ -38,17 +38,9 @@ class Trie:
             return False
             
     def export(self):
-        return self.root
+        return json.dumps(self.root, ensure_ascii=False)
 
 if __name__ == "__main__":
     trie = Trie()
-    # trie.add("this is you 2")
-
-    print(trie.export())
-
-    # words = ["hey", "im", "grace"]
-    # trie.add("hey")
-    # list(map(trie.add, words))
-    # trie.find("grace")
-    # trie.find("im")
+    trie.add("ehy")
     print(trie.export())
