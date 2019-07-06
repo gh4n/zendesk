@@ -31,13 +31,24 @@ class Trie:
             else:
                 return False
 
-        return self.TERMINAL in current_node
+        if self.TERMINAL in current_node:
+            print("True")
+            return current_node[self.TERMINAL]
+        else:
+            return False
             
     def export(self):
         return self.root
 
 if __name__ == "__main__":
     trie = Trie()
-    trie.add("test")
-    print(trie.find("test"))
+    trie.add("Hello this is \nme")
+    trie.find("Hello this is \nme")
+    # print(trie.export())
+
+    words = ["hey", "im", "grace"]
+    trie.add("hey")
+    list(map(trie.add, words))
+    trie.find("grace")
+    trie.find("im")
     print(trie.export())
