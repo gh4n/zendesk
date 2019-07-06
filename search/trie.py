@@ -55,7 +55,7 @@ class Trie:
         if self.TERMINAL not in current_node:
             return False
 
-        return current_node[self.TERMINAL]
+        return current_node[self.TERMINAL].storage
             
     def export(self):
         return jsons.dumps(self.root, ensure_ascii=False)
