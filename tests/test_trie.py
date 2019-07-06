@@ -1,5 +1,5 @@
 import context
-from zensearch.trie import Trie 
+from search.trie import Trie 
 import unittest
 import json
 
@@ -98,8 +98,6 @@ class TestTrie(unittest.TestCase):
         results = list(map(self.test_trie.find, words_not_in_trie))
         for result in results:
             self.assertEqual(result, False)
-
-
 
 if __name__ == "__main__":
     unittest.main()
