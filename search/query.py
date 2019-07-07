@@ -7,8 +7,3 @@ class Query:
         self.field = field
         self.group = group
     
-    def set_field(self, field):
-        self.field = field
-    
-    def set_group(self, group):
-        self.group = group

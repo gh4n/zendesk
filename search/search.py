@@ -19,6 +19,9 @@ class Search:
         self.groups = {"users": self.users, "tickets": self.tickets, "orgs": self.orgs}
         self.trie = Trie()
         self.build_search()
+        self.users_fields = None
+        self.tickets_fields = None
+        self.org_fields = None
         self.prompt()
     
     def load_file(self, filepath):
@@ -46,14 +49,16 @@ class Search:
                 new_entry = Entry(index, str(entry[field]), field, group_name)
                 self.trie.add(new_entry)
                 
-    def freeform_search(self, user_query):
-        query = Query(user_query)
+    def freeform_search(self, query):
         return self.trie.retrieve(query.string)
     
-    def field_and_group_search(self, user_query, field, group):
+    def field_and_group_search(self, user_query, field=None, group=None):
         query = Query(user_query, field=field, group=group)
+        print(query.field, query.group)
         unfiltered_results = self.freeform_search(query)
+        print(unfiltered_results)
         filtered_results = self.filter_results(query, unfiltered_results)
+        print(filtered_results)
         return filtered_results
 
     def filter_results(self, query, results):
@@ -79,7 +84,7 @@ class Search:
         data = self.groups[entry.group]
         return entry.get_attr(data, field)
     
-    def _get_related_info(self, entry, search_string, field, group, info_name, info_type="name");
+    def _get_related_info(self, entry, search_string, field, group, info_name, info_type="name"):
         related_results = self.field_and_group_search(search_string, field=field, group=group)
         if info_type is "name":
             info = self.get_name_ids(related_results)
@@ -89,26 +94,29 @@ class Search:
 
     def get_related_info(self, entry):
         raw_entry = self.get_raw(entry)
+        print("raw", raw_entry)
         id = raw_entry["_id"]
-        submitter_id = raw_entry["submitter_id"]
-        assignee_id = raw_entry["assignee_id"]
-        org_id = raw_entry["organization_id"]
 
         if entry.group == "orgs":
-            self._get_related_info(id, field="organization_id", group="users", info_name="users")
-            self._get_related_info(id, field="organization_id", group="tickets", info_name="tickets")
+            self._get_related_info(entry, id, field="organization_id", group="users", info_name="users")
+            self._get_related_info(entry, id, field="organization_id", group="tickets", info_name="tickets")
 
         if entry.group == "tickets":
-            self._get_related_info(submitter_id, field="_id", group="users", info_name="submitter")
-            self._get_related_info(assignee_id, field="_id", group="users", info_name="assignee")
-            self._get_related_info(org_id, field="_id", group="orgs", info_name="org")
+            submitter_id = raw_entry["submitter_id"]
+            assignee_id = raw_entry["assignee_id"]
+            self._get_related_info(entry, submitter_id, field="_id", group="users", info_name="submitter")
+            self._get_related_info(entry, assignee_id, field="_id", group="users", info_name="assignee")
+            self._get_related_info(entry, org_id, field="_id", group="orgs", info_name="org")
         
         if entry.group == "users":
-            self._get_related_info(org_id, field="_id", group="orgs", info_name="org")
-            self._get_related_info(id, field="assignee_id", group="tickets", info_name="assigned_tickets", info_type="subject")
-            self._get_related_info(id, field="submitter_id", group="tickets", info_name="submitted_tickets", info_type="subject")
+            org_id = raw_entry["organization_id"]
+
+            self._get_related_info(entry, org_id, field="_id", group="orgs", info_name="org")
+            self._get_related_info(entry, id, field="assignee_id", group="tickets", info_name="assigned_tickets", info_type="subject")
+            self._get_related_info(entry, id, field="submitter_id", group="tickets", info_name="submitted_tickets", info_type="subject")
 
     def format_results(self, results):
+        print(results)
         for entry in results:
             if entry.group == "users":
                 self.get_related_info(entry)
@@ -162,42 +170,15 @@ class Search:
             print(self.get_all_available_fields())
         if query_type =="3":
             group = input("Which group would you like to search on? (users, orgs, tickets) ")
-            if group == "users":
-                f = self.get_available_fields(self.users)
-                fields_list = self.format_fields(f) 
-                search_field = int(input("Which field would you like to search on? "))
-                field = fields_list[search_field]
-                user_query = input(f"{field} >>>> ")
-                query = Query(user_query, group=group, field=field)
-                results = self.freeforsearch(query)
-                filtered = self.filter_results(query, results)
-                self.format_results(filtered)
-
-            if group == "orgs":
-                f = self.get_available_fields(self.orgs)
-                fields_list = self.format_fields(f) 
-                search_field = int(input("Which field would you like to search on? "))
-                field = fields_list[search_field]
-                user_query = input(f"{field} >>>> ")
-                query = Query(user_query)
-                query.set_group("tickets")
-                query.set_field(field)
-                results = self.search(query)
-                filtered = self.filter_results(query, results)
-
-
-            if group == "tickets":
-                f = self.get_available_fields(self.tickets)
-                fields_list = self.format_fields(f) 
-                search_field = int(input("Which field would you like to search on? "))
-                field = fields_list[search_field]
-                user_query = input(f"{field} >>>> ")
-                query = Query(user_query)
-                query.set_group("tickets")
-                query.set_field(field)
-                results = self.search(query)
-                filtered = self.filter_results(query, results)
-                print(filtered)
+            fields = self.get_available_fields(self.groups[group])
+            fields_list = list(fields.keys())
+            self.format_fields(fields)
+            field = int(input("Which field would you like to search on?"))
+            search_query = str(input("Please input search query >>>> "))
+            print(search_query)
+            results = self.field_and_group_search(search_query, group=group, field=fields_list[field])
+            print("res", results[0].group)
+            self.format_results(results)
     
 if __name__ == "__main__":
     search = Search(users_filepath="data/users.json", tickets_filepath="data/tickets.json", orgs_filepath="data/organizations.json")
