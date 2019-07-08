@@ -21,6 +21,25 @@
         "due_at": "2016-08-06T07:28:38 -10:00",
         "via": "web"
     },
+    "ticket_missing_fields": {
+      "url": "http://initech.zendesk.com/api/v2/tickets/ffe688cd-402f-4e37-8597-88b3811bbf46.json",
+      "external_id": "a264d753-d2c3-4f50-ba8f-299bf8070f67",
+      "created_at": "2016-02-03T05:47:00 -11:00",
+      "type": "question",
+      "subject": "A Problem in Vatican City Ştate (Holy See)",
+      "description": "Ullamco enim id proident cillum tempor fugiat consequat non enim ad. Consectetur nostrud consequat deserunt consequat sit deserunt cillum esse eu ut fugiat.",
+      "priority": "urgent",
+      "status": "open",
+      "tags": [
+      "District Of Columbia",
+      "Wisconsin",
+      "Illinois",
+      "Fédératéd Statés Of Micronésia"
+      ],
+      "has_incidents": false,
+      "due_at": "2016-08-06T07:28:38 -10:00",
+      "via": "web"
+  },
 
     "ticket_missing_id": {
         "url": "http://initech.zendesk.com/api/v2/tickets/ffe688cd-402f-4e37-8597-88b3811bbf46.json",
@@ -139,6 +158,30 @@
         "suspended": true,
         "role": "end-user"
       },
+      "user_missing_fields" :   {
+        "url": "http://initech.zendesk.com/api/v2/users/31.json",
+        "external_id": "e9121c21-0321-4024-a844-5d869ddc1343",
+        "name": "Jessica Raymond",
+        "alias": "Miss Carroll",
+        "created_at": "2016-01-10T05:55:31 -11:00",
+        "active": true,
+        "verified": false,
+        "shared": false,
+        "locale": "zh-CN",
+        "timezone": "Greece",
+        "last_login_at": "2016-06-06T04:20:09 -10:00",
+        "email": "carrollraymond@flotonic.com",
+        "phone": "9794-023-473",
+        "signature": "Don't Worry Be Happy!",
+        "tags": [
+          "Chalfant",
+          "Calverton",
+          "Flintville",
+          "Yonah"
+        ],
+        "suspended": true,
+        "role": "end-user"
+      },
       "user_missing_org_id" :   {
         "_id": 31,
         "url": "http://initech.zendesk.com/api/v2/users/31.json",
@@ -190,7 +233,7 @@
         "suspended": true,
         "role": "end-user"
       },
-      "orgs_missing_id" :  {
+      "org_missing_id" :  {
         "url": "http://initech.zendesk.com/api/v2/organizations/118.json",
         "external_id": "6970300e-f211-4c01-a538-70b4464a1d84",
         "name": "Limozen",
@@ -231,5 +274,25 @@
               "Walsh"
             ]
         },
-    ""
+
+    "org_missing_fields" : {
+      "url": "http://initech.zendesk.com/api/v2/organizations/118.json",
+      "external_id": "6970300e-f211-4c01-a538-70b4464a1d84",
+      "name": "Limozen",
+      "domain_names": [
+        "otherway.com",
+        "rodeomad.com",
+        "suremax.com",
+        "fishland.com"
+      ],
+      "created_at": "2016-02-11T04:24:09 -11:00",
+      "details": "MegaCorp",
+      "shared_tickets": false,
+      "tags": [
+        "Leon",
+        "Ferguson",
+        "Olsen",
+        "Walsh"
+      ]
+  }
 }

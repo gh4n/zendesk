@@ -11,10 +11,15 @@ class Search():
         self.groups = {"users": self.users, "tickets": self.tickets, "orgs": self.orgs}
         self.trie = Trie()
         self.build_search()
-    
+        
     def load_file(self, filepath):
-        with open(filepath, 'r') as f:
-            return json.load(f)
+        try:
+            with open(filepath, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError as err:
+            raise FileNotFoundError(f"File: {filepath}, not found!")
+        except JSONDecodeError as err:
+            raise JSONDecodeError(f"File: {filepath}, could not be loaded!")
     
     def build_search(self):
         self.add_group(self.users, "users")
@@ -29,12 +34,12 @@ class Search():
         for field in entry:
             if type(entry[field]) is list:
                 for item in entry[field]:
-                    new_entry = Entry(entry, str(item), field, group_name)
+                    new_entry = Entry(entry, item, field, group_name)
                     self.trie.add(new_entry)
             if type(entry[field]) is dict:
                 self.add_entry(entry, entry[field], field, group_name)
             else:
-                new_entry = Entry(entry, str(entry[field]), field, group_name)
+                new_entry = Entry(entry, entry[field], field, group_name)
                 self.trie.add(new_entry)
 
     def freeform_search(self, query):
@@ -66,12 +71,6 @@ class Search():
         
 if __name__ == "__main__":
     s = Search(users_filepath="data/users.json", tickets_filepath="data/tickets.json", orgs_filepath="data/organizations.json")
-    # s.build_search()
-    # class Query:
-    #     def __init__(self):
-    #         self.string = "http://initech.zendesk.com/api/v2/organizations/113.json"
-    # query = Query()
-    res = s.field_and_group_search(query_string="Fédératéd Statés Of Micronésia", field="", group="" )
+    # res = s.field_and_group_search(query_string="Fédératéd Statés Of Micronésia", field="", group="" )
+    res = s.field_and_group_search(query_string="Kansas", field="", group="" )
     s.output_results(res)
-
-    # print(s.trie.export())

@@ -1,5 +1,5 @@
 import context
-from search.trie import Trie 
+from trie import Trie 
 import unittest
 import json
 
@@ -12,6 +12,7 @@ class TestData:
         self.space_delimited_string = "this is me"
         self.words_in_trie = ["here", "hire", "good", "hope"]
         self.words_not_in_trie = ["nothere", "fire", "bad", "hopeless"]
+        self.empty_string = ""
 
 class TestTrie(unittest.TestCase):
 
