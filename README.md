@@ -8,7 +8,7 @@ Running search:
 `python3 search.py`
 
 Running tests:
-`python3 testrunner.py`
+`python3 tests/testrunner.py`
 
 ---
 
@@ -35,5 +35,7 @@ Constructing a Trie can also be done in time linear to the length of the search 
 2. Any objects can be stored in the TerminalNodes of the Trie, thus allowing flexible decisions as to what and how
    the results of queries are stored.
 3. Optimal for exact and prefix matching.
+
+
 
 

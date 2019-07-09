@@ -6,19 +6,22 @@ import context
 from query import Query
 from entry import Entry
 
+
 class TestData:
     def __init__(self, test_data_file):
         self.test_data = self.load(test_data_file)
-    
+
     def load(self, test_data_file):
         try:
             with open(test_data_file, 'r') as f:
                 return json.load(f)
-        except FileNotFoundError as err:
+        except FileNotFoundError:
             raise FileNotFoundError(f"File: {test_data_file}, not found!")
-        except JSONDecodeError as err:
-            raise JSONDecodeError(f"File: {test_data_file}, could not be loaded!")
-     
+        except JSONDecodeError:
+            raise JSONDecodeError(
+                f"File: {test_data_file}, could not be loaded!")
+
+
 class TestQuery(unittest.TestCase):
     data = TestData("test_data/test_entry_inputs.json")
 
@@ -35,9 +38,9 @@ class TestQuery(unittest.TestCase):
         self.assertEqual(field_data, "return me")
 
     def test_get_field_missing(self):
-        self.entry.data = {"no_field" : "return none"}
+        self.entry.data = {"no_field": "return none"}
         self.assertRaises(KeyError, lambda: self.entry.get_field("field"))
-    
+
     def test_create_query_field_exists(self):
         self.entry.data = self.data.test_data["org_all_fields"]
         query = self.entry._create_query("_id", "organization_id", "users")
@@ -50,8 +53,8 @@ class TestQuery(unittest.TestCase):
     def test_create_query_field_missing(self):
         self.entry.data = self.data.test_data["org_missing_id"]
         query = self.entry._create_query("_id", "organization_id", "users")
-        self.assertEqual(query, None)     
-    
+        self.assertEqual(query, None)
+
     def test_get_related_queries_user(self):
         test_case = "user_all_fields"
         self.entry.group = "users"
@@ -59,7 +62,7 @@ class TestQuery(unittest.TestCase):
         self.entry.data = self.data.test_data[test_case]
         org_id = self.entry.data["organization_id"]
         id = self.entry.data["_id"]
-        
+
         related = self.entry.get_related_queries()
         org_query = related["org"]
         submitter_query = related["submitted_tickets"]
@@ -79,14 +82,14 @@ class TestQuery(unittest.TestCase):
         self.assertEqual(assigned_query.string, str(id))
         self.assertEqual(assigned_query.field, "assignee_id")
         self.assertEqual(assigned_query.group, "tickets")
-    
+
     def test_get_related_queries_org(self):
         test_case = "org_all_fields"
         self.entry.group = "orgs"
 
         self.entry.data = self.data.test_data[test_case]
         id = self.entry.data["_id"]
-        
+
         related = self.entry.get_related_queries()
         user_query = related["users"]
         tickets_query = related["tickets"]
@@ -100,7 +103,7 @@ class TestQuery(unittest.TestCase):
         self.assertEqual(tickets_query.string, str(id))
         self.assertEqual(tickets_query.field, "organization_id")
         self.assertEqual(tickets_query.group, "tickets")
-    
+
     def test_get_related_query_ticket(self):
         test_case = "ticket_all_fields"
         self.entry.group = "tickets"
@@ -109,7 +112,7 @@ class TestQuery(unittest.TestCase):
         org_id = self.entry.data["organization_id"]
         submitter_id = self.entry.data["submitter_id"]
         assignee_id = self.entry.data["assignee_id"]
-        
+
         related = self.entry.get_related_queries()
         org_query = related["org"]
         submitter_query = related["submitter"]
@@ -144,6 +147,7 @@ class TestQuery(unittest.TestCase):
         org_data = self.data.test_data["org_all_fields"]
         ticket_data = self.data.test_data["ticket_all_fields"]
 
+        # build expected strings
         user_id = user_data["_id"]
         user_name = user_data["name"]
         user_info = f"{user_name} | {user_id}"
@@ -156,12 +160,23 @@ class TestQuery(unittest.TestCase):
         ticket_subject = ticket_data["subject"]
         ticket_info = f"{ticket_subject} | {ticket_id}"
 
-        user = Entry(user_data, "test", "_id", "users")        
-        org = Entry(org_data, "test", "_id", "orgs")        
+        # create dummy entries
+        user = Entry(user_data, "test", "_id", "users")
+        org = Entry(org_data, "test", "_id", "orgs")
         ticket = Entry(ticket_data, "test", "_id", "tickets")
-        
-        expected = {"users":[user_info], "org":[org_info], "ticket":[ticket_info], "none":None}
-        self.entry.related_results = {"users": [user], "org": [org], "ticket": [ticket], "none": None}
+
+        expected = {
+            "users": [user_info],
+            "org": [org_info],
+            "ticket": [ticket_info],
+            "none": None
+        }
+        self.entry.related_results = {
+            "users": [user],
+            "org": [org],
+            "ticket": [ticket],
+            "none": None
+        }
         self.entry.save_related_results()
         self.assertEqual(self.entry.related_results, expected)
 
@@ -170,10 +185,7 @@ class TestQuery(unittest.TestCase):
         org_data = self.data.test_data["org_all_fields"]
         ticket_data = self.data.test_data["ticket_missing_id"]
 
-        user = Entry(user_data, "test", "_id", "users")        
-        org = Entry(org_data, "test", "_id", "orgs")        
-        ticket = Entry(ticket_data, "test", "_id", "tickets")
-
+        # build expected strings
         user_id = None
         user_name = user_data["name"]
         user_info = f"{user_name} | {user_id}"
@@ -186,11 +198,26 @@ class TestQuery(unittest.TestCase):
         ticket_subject = ticket_data["subject"]
         ticket_info = f"{ticket_subject} | {ticket_id}"
 
-        expected = {"users":[user_info], "org":[org_info], "ticket":[ticket_info], "none":None}
-        self.entry.related_results = {"users": [user], "org": [org], "ticket": [ticket], "none": None}
+        # create dummy entries
+        user = Entry(user_data, "test", "_id", "users")
+        org = Entry(org_data, "test", "_id", "orgs")
+        ticket = Entry(ticket_data, "test", "_id", "tickets")
+
+        expected = {
+            "users": [user_info],
+            "org": [org_info],
+            "ticket": [ticket_info],
+            "none": None
+        }
+        self.entry.related_results = {
+            "users": [user],
+            "org": [org],
+            "ticket": [ticket],
+            "none": None
+        }
         self.entry.save_related_results()
         self.assertEqual(self.entry.related_results, expected)
-    
+
 
 if __name__ == "__main__":
     unittest.main()

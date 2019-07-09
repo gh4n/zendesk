@@ -17,9 +17,9 @@ class Search():
             with open(filepath, 'r') as f:
                 return json.load(f)
         except FileNotFoundError as err:
-            raise FileNotFoundError(f"File: {filepath}, not found!")
-        except JSONDecodeError as err:
-            raise JSONDecodeError(f"File: {filepath}, could not be loaded!")
+            print(f"File: {filepath}, not found!", err)
+        except ValueError as err:
+            print(f"File: {filepath}, could not be loaded!", err)
     
     def build_search(self):
         self.add_group(self.users, "users")
@@ -29,15 +29,13 @@ class Search():
     def add_group(self, group, group_name):
         for entry in group:
             self.add_entry(entry, group_name)
-    
+
     def add_entry(self, entry, group_name):
         for field in entry:
             if type(entry[field]) is list:
                 for item in entry[field]:
                     new_entry = Entry(entry, item, field, group_name)
                     self.trie.add(new_entry)
-            if type(entry[field]) is dict:
-                self.add_entry(entry, entry[field], field, group_name)
             else:
                 new_entry = Entry(entry, entry[field], field, group_name)
                 self.trie.add(new_entry)
@@ -66,11 +64,14 @@ class Search():
         print(result.format())
 
     def output_results(self, results):
+        if not results:
+            print("No search results!")
+            return
         for result in results:
             self.output_result(result)
         
 if __name__ == "__main__":
     s = Search(users_filepath="data/users.json", tickets_filepath="data/tickets.json", orgs_filepath="data/organizations.json")
     # res = s.field_and_group_search(query_string="Fédératéd Statés Of Micronésia", field="", group="" )
-    res = s.field_and_group_search(query_string="Kansas", field="", group="" )
+    res = s.field_and_group_search(query_string="", field="", group="" )
     s.output_results(res)

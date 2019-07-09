@@ -3,7 +3,7 @@ import yaml
     
 class Entry:
     """
-    Generic object to reference the entry that is
+    Generic object to reference the search entry that is
     indexed into the Trie
     """
     def __init__(self, data, item, field, group):
@@ -27,6 +27,8 @@ class Entry:
             return None
 
     def get_related_queries(self):
+        # based on the group of the entry, will return queries for retrieving data relating to
+        # the entry. 
         if self.group == "users":
             org = self._create_query("organization_id", "_id", "orgs")
             submitted_tickets = self._create_query("_id", "submitter", "tickets")
@@ -44,8 +46,8 @@ class Entry:
             org = self._create_query("organization_id", "_id", "orgs")
             return {"submitter": submitter, "assignee": assignee, "org": org}
     
-    # saves only important information from entries in related results
     def save_related_results(self):
+        # saves only important information from the entries in related results
         for key, results in self.related_results.items():
             if not results:
                 continue
