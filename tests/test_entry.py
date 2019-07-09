@@ -17,8 +17,8 @@ class TestData:
                 return json.load(f)
         except FileNotFoundError:
             raise FileNotFoundError(f"File: {test_data_file}, not found!")
-        except JSONDecodeError:
-            raise JSONDecodeError(f"File: {test_data_file}, could not be loaded!")
+        except ValueError:
+            raise ValueError(f"File: {test_data_file}, could not be loaded!")
 
 
 class TestQuery(unittest.TestCase):

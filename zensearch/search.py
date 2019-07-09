@@ -5,22 +5,23 @@ import json
 
 
 class Search:
-    def __init__(self, users_filepath=None, tickets_filepath=None, orgs_filepath=None):
+    def __init__(self, users_filepath, tickets_filepath, orgs_filepath):
         self.users = self.load_file(users_filepath)
         self.tickets = self.load_file(tickets_filepath)
         self.orgs = self.load_file(orgs_filepath)
         self.groups = {"users": self.users, "tickets": self.tickets, "orgs": self.orgs}
         self.trie = Trie()
-        self.build_search()
-
+    
     def load_file(self, filepath):
         try:
-            with open(filepath, "r", encoding="latin-1") as f:
+            with open(filepath, "r") as f:
                 return json.load(f)
         except FileNotFoundError as err:
-            print(f"File: {filepath}, not found!", err)
+            print(f"File: {filepath}, not found!")
+            raise (err)
         except ValueError as err:
-            print(f"File: {filepath}, could not be loaded!", err)
+            print(f"File: {filepath}, could not be loaded!")
+            raise (err)
 
     def build_search(self):
         self.add_group(self.users, "users")
@@ -28,17 +29,17 @@ class Search:
         self.add_group(self.orgs, "orgs")
 
     def add_group(self, group, group_name):
-        for entry in group:
-            self.add_entry(entry, group_name)
+        for item in group:
+            self.add_item(item, group_name)
 
-    def add_entry(self, entry, group_name):
-        for field in entry:
-            if type(entry[field]) is list:
-                for item in entry[field]:
-                    new_entry = Entry(entry, item, field, group_name)
+    def add_item(self, item_data, group_name):
+        for field, value in item_data.items():
+            if type(value) is list:
+                for search_term in value:
+                    new_entry = Entry(item_data, search_term, field, group_name)
                     self.trie.add(new_entry)
             else:
-                new_entry = Entry(entry, entry[field], field, group_name)
+                new_entry = Entry(item_data, value, field, group_name)
                 self.trie.add(new_entry)
 
     def freeform_search(self, query):
@@ -70,6 +71,7 @@ class Search:
             return
         for result in results:
             self.output_result(result)
+
 
 if __name__ == "__main__":
     s = Search(

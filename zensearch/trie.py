@@ -74,12 +74,7 @@ if __name__ == "__main__":
     trie = Trie()
 
     t = TestString("hi")
-    t2 = TestString("her")
-    t3 = TestString("he")
 
     trie.add(t)
-    trie.add(t2)
-    trie.add(t3)
 
-    # print(trie.retrieve(".,/#!$%^&*;:{}=-_`~)()"))
     print(trie.export())
