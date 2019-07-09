@@ -72,6 +72,50 @@ class Search:
             return
         for result in results:
             self.output_result(result)
+    
+    def get_fields(self, group, fields={}):
+        for item in group:
+            for field in item:
+                fields.setdefault(field, "X")
+        return fields
+
+    def format_fields(self, fields):
+        fields = list(fields.keys())
+        for index, val in enumerate(fields):
+            print(f"{index + 1}. {val}")
+        return fields
+    
+    def prompt(self):
+        print("Welcome to Zendesk Search!")
+        print("Would you like freeform search (0) or search on one of the following categories?")
+        print("Type `quit` to quit")
+        choice = input("Users (1), Organizations (2), Tickets (3):\n >>>>> ")
+        while choice != "quit":
+            if choice == "0":
+                search_query = input("Please enter a search term:\n >>>>>")
+            if choice == "1":
+                fields = self.get_fields(self.users)
+                print("Available Fields")
+                self.format_fields(fields)
+                search_field= input("Which field would you like to search on? Please enter the name of the field\n >>>>>")
+                while search_field not in fields:
+                    print("Invalid search field, please try again!")
+                    search_field= input("Which field would you like to search on? Please enter the name of the field\n >>>>>")
+                search_query = input("Please enter a search term:\n >>>>>")
+                self.field_and_group_search(search_query=search_query, )
+
+
+        if choice == "2":
+            fields = self.get_fields(self.orgs)
+            print("\n Please enter search field\n >>>>>")
+        if choice == "3":
+            fields = self.get_fields(self.tickets)
+            print("\n Please enter search field\n >>>>>")
+    
+    def run(self):
+        self.build_search()
+        self.prompt()
+
 
 
 if __name__ == "__main__":
@@ -80,7 +124,8 @@ if __name__ == "__main__":
         tickets_filepath="data/tickets.json",
         orgs_filepath="data/organizations.json",
     )
-    s.build_search()
-    res = s.field_and_group_search(query_string="Fédératéd Statés Of Micronésia", field="", group="" )
-    # res = s.field_and_group_search(query_string="", field="", group="")
-    s.output_results(res)
+    s.run()
+    # s.build_search()
+    # res = s.field_and_group_search(query_string="Fédératéd Statés Of Micronésia", field="", group="" )
+    # # res = s.field_and_group_search(query_string="", field="", group="")
+    # s.output_results(res)

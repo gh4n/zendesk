@@ -1,22 +1,22 @@
 import context
 from search import Search
 from entry import Entry
+from query import Query
 import unittest
 import json
 
 
 class TestData:
     def __init__(self):
-        self.user = "tests/test_data/user_sample.json"
-        self.org = "tests/test_data/org_sample.json"
-        self.ticket = "tests/test_data/ticket_sample.json"
+        self.samples = "tests/test_data/samples.json"
+        self.user = "tests/test_data/users_data.json"
+        self.org = "tests/test_data/orgs_data.json"
+        self.ticket = "tests/test_data/tickets_data.json"
         self.malformed_json = "tests/test_data/bad_input.json"
-        self.users_search_json = "data/"
 
     def load(self, filepath):
         with open(filepath, "r") as f:
             return json.load(f)
-
 
 class TestSearch(unittest.TestCase):
     test_data = TestData()
@@ -34,7 +34,8 @@ class TestSearch(unittest.TestCase):
         self.assertRaises(FileNotFoundError, lambda: Search(exists, exists_as_well, missing))
 
     def test_add_entry(self):
-        user = self.test_data.load(self.test_data.user)
+        data  = self.test_data.load(self.test_data.samples)
+        user = data["user"]
         search = Search(self.test_data.user, self.test_data.ticket, self.test_data.org)
         search.add_item(user, "users")
 
@@ -53,17 +54,35 @@ class TestSearch(unittest.TestCase):
                 expected = str(value).lower()
                 self.assertEqual(expected, result.string)
 
-    def test_freeform_search(self):
+    def _test_freeform_search(self, test_search_term):
         search = Search(self.test_data.user, self.test_data.ticket, self.test_data.org)
-        search.build_search()
-        
+        search.build_search()  
+        query = Query(test_search_term, field="", group="")
+        return search.freeform_search(query)
+    
+    def test_freeform_search_empty_string(self):
+        # empty field "name" in users_data.json
+        result = self._test_freeform_search("")                
+        entry = result[0]
+        self.assertEqual(entry.string, "")
+        self.assertEqual(entry.field, "name")
+        self.assertEqual(entry.group, "users")
+    
+    def test_freeform_search_multiple_results(self):
+        results = self._test_freeform_search("104")
+        for entry in results:
+            if entry.group == "users":
+                self.assertEqual(str(entry.data["_id"]), "3")
+            if entry.group == "tickets":
+                self.assertEqual(str(entry.data["_id"]), "4cce7415-ef12-42b6-b7b5-fb00e24f9cc1")
 
-    def test_filter_results(self):
-        pass
-
-    def test_field_and_group_search(self):
-        pass
-
+    def test_freeform_search_multiple_results(self):
+        results = self._test_freeform_search("104")
+        for entry in results:
+            if entry.group == "users":
+                self.assertEqual(str(entry.data["_id"]), "3")
+            if entry.group == "tickets":
+                self.assertEqual(str(entry.data["_id"]), "4cce7415-ef12-42b6-b7b5-fb00e24f9cc1")
 
 if __name__ == "__main__":
     unittest.main()
