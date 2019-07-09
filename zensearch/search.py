@@ -49,6 +49,7 @@ class Search:
         if not query:
             query = Query(query_string, field, group)
         unfiltered_results = self.freeform_search(query)
+        print(unfiltered_results)
         return self.filter_results(query, unfiltered_results)
 
     def filter_results(self, query, results):
@@ -79,6 +80,7 @@ if __name__ == "__main__":
         tickets_filepath="data/tickets.json",
         orgs_filepath="data/organizations.json",
     )
-    # res = s.field_and_group_search(query_string="Fédératéd Statés Of Micronésia", field="", group="" )
-    res = s.field_and_group_search(query_string="", field="", group="")
+    s.build_search()
+    res = s.field_and_group_search(query_string="Fédératéd Statés Of Micronésia", field="", group="" )
+    # res = s.field_and_group_search(query_string="", field="", group="")
     s.output_results(res)

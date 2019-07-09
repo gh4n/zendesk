@@ -18,7 +18,7 @@ class TerminalNode:
 
 class Trie:
     """
-    Dictionary based trie to index each search words.
+    Dictionary based trie which indexes search terms.
     """
 
     def __init__(self):
