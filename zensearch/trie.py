@@ -62,7 +62,7 @@ class Trie:
         return current_node[self.TERMINAL].storage
 
     def export(self):
-        return type(jsons.dumps(self.root, ensure_ascii=False))
+        return jsons.dumps(self.root)
 
 
 if __name__ == "__main__":
@@ -72,25 +72,14 @@ if __name__ == "__main__":
             self.string = string
 
     trie = Trie()
-    # t = TestString("here")
-    # t2 = TestString("hire")
-    # t3 = TestString("hope")
-    # t4 = TestString("good")
 
-    # self.string = "testing"
-    # self.accented_string = "résumé"
-    # self.integer_string = "123testing123"
-    # self.punctuated_string = ".,/#!$%^&*;:{}=-_`~)()"
-    # self.space_delimited_string = "this is me"
-    # self.words_in_trie = ["here", "hire", "good", "hope"]
-    # self.words_not_in_trie = ["nothere", "fire", "bad", "hopeless"]
-    # self.empty_string = ""
+    t = TestString("hi")
+    t2 = TestString("her")
+    t3 = TestString("he")
 
-    # trie.add(t)
-    # trie.add(t2)
-    # trie.add(t3)
-    # trie.add(t4)
-    t = TestString("this is me")
     trie.add(t)
+    trie.add(t2)
+    trie.add(t3)
+
     # print(trie.retrieve(".,/#!$%^&*;:{}=-_`~)()"))
     print(trie.export())

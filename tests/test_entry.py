@@ -13,13 +13,12 @@ class TestData:
 
     def load(self, test_data_file):
         try:
-            with open(test_data_file, 'r') as f:
+            with open(test_data_file, "r") as f:
                 return json.load(f)
         except FileNotFoundError:
             raise FileNotFoundError(f"File: {test_data_file}, not found!")
         except JSONDecodeError:
-            raise JSONDecodeError(
-                f"File: {test_data_file}, could not be loaded!")
+            raise JSONDecodeError(f"File: {test_data_file}, could not be loaded!")
 
 
 class TestQuery(unittest.TestCase):
@@ -165,17 +164,12 @@ class TestQuery(unittest.TestCase):
         org = Entry(org_data, "test", "_id", "orgs")
         ticket = Entry(ticket_data, "test", "_id", "tickets")
 
-        expected = {
-            "users": [user_info],
-            "org": [org_info],
-            "ticket": [ticket_info],
-            "none": None
-        }
+        expected = {"users": [user_info], "org": [org_info], "ticket": [ticket_info], "none": None}
         self.entry.related_results = {
             "users": [user],
             "org": [org],
             "ticket": [ticket],
-            "none": None
+            "none": None,
         }
         self.entry.save_related_results()
         self.assertEqual(self.entry.related_results, expected)
@@ -203,17 +197,12 @@ class TestQuery(unittest.TestCase):
         org = Entry(org_data, "test", "_id", "orgs")
         ticket = Entry(ticket_data, "test", "_id", "tickets")
 
-        expected = {
-            "users": [user_info],
-            "org": [org_info],
-            "ticket": [ticket_info],
-            "none": None
-        }
+        expected = {"users": [user_info], "org": [org_info], "ticket": [ticket_info], "none": None}
         self.entry.related_results = {
             "users": [user],
             "org": [org],
             "ticket": [ticket],
-            "none": None
+            "none": None,
         }
         self.entry.save_related_results()
         self.assertEqual(self.entry.related_results, expected)
