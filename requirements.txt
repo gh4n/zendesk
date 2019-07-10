@@ -1,0 +1,6 @@
+certifi==2019.6.16
+jsons==0.8.9
+pipenv==2018.11.26
+PyYAML==3.13
+virtualenv==16.6.1
+virtualenv-clone==0.5.3
