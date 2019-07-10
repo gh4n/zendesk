@@ -55,11 +55,11 @@ class Entry:
                 if entry.group == "tickets":
                     id = entry.get_field("_id") if "_id" in entry.data else None
                     subject = entry.get_field("subject") if "subject" in entry.data else None
-                    results[index] = f'{subject} | {id}'
+                    results[index] = f'Subject: {subject} | ID: {id}'
                 else:
                     id = entry.get_field("_id") if "_id" in entry.data else None
                     name = entry.get_field("name") if "name" in entry.data else None
-                    results[index] = f'{name} | {id}'
+                    results[index] = f'Name: {name} | ID: {id}'
             self.data[key] = results
     
     def format(self):

@@ -1,6 +1,5 @@
 import json
 import unittest
-import sys
 import context
 
 from query import Query
@@ -22,7 +21,7 @@ class TestData:
 
 
 class TestQuery(unittest.TestCase):
-    data = TestData("test_data/test_entry_inputs.json")
+    data = TestData("tests/test_data/test_entry_inputs.json")
 
     def setUp(self):
         self.entry = Entry(self.data.test_data, "test", "_id", "users")
@@ -149,15 +148,15 @@ class TestQuery(unittest.TestCase):
         # build expected strings
         user_id = user_data["_id"]
         user_name = user_data["name"]
-        user_info = f"{user_name} | {user_id}"
+        user_info = f"Name: {user_name} | ID: {user_id}"
 
         org_id = org_data["_id"]
         org_name = org_data["name"]
-        org_info = f"{org_name} | {org_id}"
+        org_info = f"Name: {org_name} | ID: {org_id}"
 
         ticket_id = ticket_data["_id"]
         ticket_subject = ticket_data["subject"]
-        ticket_info = f"{ticket_subject} | {ticket_id}"
+        ticket_info = f"Subject: {ticket_subject} | ID: {ticket_id}"
 
         # create dummy entries
         user = Entry(user_data, "test", "_id", "users")
@@ -182,15 +181,15 @@ class TestQuery(unittest.TestCase):
         # build expected strings
         user_id = None
         user_name = user_data["name"]
-        user_info = f"{user_name} | {user_id}"
+        user_info = f"Name: {user_name} | ID: {user_id}"
 
         org_id = org_data["_id"]
         org_name = org_data["name"]
-        org_info = f"{org_name} | {org_id}"
+        org_info = f"Name: {org_name} | ID: {org_id}"
 
         ticket_id = None
         ticket_subject = ticket_data["subject"]
-        ticket_info = f"{ticket_subject} | {ticket_id}"
+        ticket_info = f"Subject: {ticket_subject} | ID: {ticket_id}"
 
         # create dummy entries
         user = Entry(user_data, "test", "_id", "users")
