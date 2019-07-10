@@ -1,8 +1,8 @@
 from trie import Trie
 from entry import Entry
 from query import Query
-import json
 import sys
+import json
 
 
 class Search:
@@ -12,6 +12,7 @@ class Search:
     searching on User, Ticket, and Orgs data specifically.
     Groups: "users", "tickets", "orgs"
     """
+
     def __init__(self, users_filepath, tickets_filepath, orgs_filepath):
         self.users = self.load_file(users_filepath)
         self.tickets = self.load_file(tickets_filepath)
@@ -21,7 +22,7 @@ class Search:
         self.org_fields = self.get_fields(self.orgs)
         self.ticket_fields = self.get_fields(self.tickets)
         self.trie = Trie()
-    
+
     def load_file(self, filepath):
         try:
             with open(filepath, "r") as f:
@@ -57,7 +58,7 @@ class Search:
     # search across all groups
     def freeform_search(self, query):
         return self.trie.retrieve(query.string)
-    
+
     # filters a freeform search by group and field
     def field_and_group_search(self, query=None, query_string=None, field=None, group=None):
         if not query:
@@ -80,44 +81,48 @@ class Search:
         for key, query in queries.items():
             result.related_results[key] = self.field_and_group_search(query)
         result.save_related_results()
-        print(f'{result.group[0].upper()}{result.group[1:-1]}')
+        print(f"{result.group[0].upper()}{result.group[1:-1]}")
         print(result.format())
 
     def output_results(self, results):
         if not results:
             print("No Results Found!")
-            return 
-            
+            return
+
         print(f"{len(results)} found!")
         for result in results:
             self.output_result(result)
-    
+
     def get_fields(self, group_data):
         fields = {}
         for entry in group_data:
             for field, value in entry.items():
                 fields.setdefault(field, None)
         return fields
-    
+
     def format_fields(self, fields):
         for field in fields:
             print(field)
-    
+
     def prompt_group(self, group, group_fields):
         print("The following fields are available for searching on")
         self.format_fields(group_fields)
         chosen_field = input("Please enter the name of the field you wish to search on\n >>>> ")
         if chosen_field in group_fields:
             user_query = input("Please enter a search query\n >>>> ")
-            results = self.field_and_group_search(query_string=user_query, field=chosen_field, group=group)
+            results = self.field_and_group_search(
+                query_string=user_query, field=chosen_field, group=group
+            )
             self.output_results(results)
         else:
             print("Please enter a correct field")
-        
+
     def prompt(self):
         choice = None
         while choice != "quit":
-            print("\n\nHi Welcome to Zendesk Search. Please enter one of the following options\nFreeform, Users, Organizations, Tickets")
+            print(
+                "\n\nHi Welcome to Zendesk Search. Please enter one of the following options\nFreeform, Users, Organizations, Tickets"
+            )
             choice = input(" >>>> ").lower()
             if choice == "freeform":
                 user_query = input("Please enter a search query: \n >>>> ")
@@ -132,7 +137,8 @@ class Search:
                 self.prompt_group("orgs", self.org_fields)
             if choice == "quit":
                 sys.exit()
-            
+
+
 if __name__ == "__main__":
     s = Search(
         users_filepath="data/users.json",

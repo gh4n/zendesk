@@ -39,7 +39,7 @@ A Trie implementation ensures that each query is linear to the length of the que
 Constructing a Trie can also be done in time linear to the length of the search text as we are just inserting each character into the Trie.
 
 # Search Types
-Freeform search: searches across groups (Users, Orgs, Tickets)
+Freeform search: searches across groups (Users, Orgs, Tickets)  
 Field and Group search: filters a freeform search by group and field
 
 # Note
